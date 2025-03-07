@@ -39,7 +39,7 @@ with app.app_context():
 
 @app.route("/")
 def home():
-    return "Flask API is running perfect!"
+   return "Flask API is running perfect!"
 
 # API endpoint for user registration
 @app.route("/register", methods=['POST'])
