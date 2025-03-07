@@ -58,7 +58,7 @@ def register():
     return jsonify({"message": "User registered successfully"}), 201
 
 # API endpoint for user login
-@app.route('/api/login', methods=['POST'])
+@app.route("/api/login", methods=['POST'])
 def login():
     data = request.get_json()
     username = data.get("username")
@@ -73,13 +73,13 @@ def login():
     return jsonify({"token": token}), 200
 
 # Fetch all tasks
-@app.route('/api/tasks', methods=['GET'])
+@app.route("/api/tasks", methods=['GET'])
 def get_tasks():
     tasks = Task.query.all()
     return jsonify([{ "id": task.id, "name": task.name, "status": task.status } for task in tasks])
 
 # Add a new task
-@app.route('/api/tasks', methods=['POST'])
+@app.route("/api/tasks", methods=['POST'])
 def add_task():
     data = request.get_json()
     task_name = data.get("task_name")
@@ -92,7 +92,7 @@ def add_task():
     return jsonify({"message": "Task added successfully"}), 201
 
 # Update a task status
-@app.route('/api/tasks/<int:task_id>', methods=['PUT'])
+@app.route("/api/tasks/<int:task_id>", methods=['PUT'])
 def update_task(task_id):
     data = request.get_json()
     task = Task.query.get(task_id)
@@ -104,7 +104,7 @@ def update_task(task_id):
     return jsonify({"message": "Task updated successfully"})
 
 # Delete a task
-@app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
+@app.route("/api/tasks/<int:task_id>", methods=['DELETE'])
 def delete_task(task_id):
     task = Task.query.get(task_id)
     if not task:
@@ -115,4 +115,4 @@ def delete_task(task_id):
     return jsonify({"message": "Task deleted successfully"})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

@@ -113,4 +113,4 @@ setTimeout(() => {
         flashMessages.style.opacity = 0; // Fade out
         setTimeout(() => flashMessages.remove(), 500); // Remove after fade-out
     }
-}, 5000);
+}, 5000); // 5 seconds timer for the flash messages to fade out
