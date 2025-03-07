@@ -1,5 +1,5 @@
 // API Base URL for Flask
-const apiUrl = "http://127.0.0.1:5000/api"; 
+const apiUrl = "http://127.0.0.1:5000/"; 
 
 // Elements
 const container = document.getElementById("container");
@@ -24,38 +24,40 @@ if (loginBtn) {
 const loginForm = document.querySelector(".sign-in form");
 if (loginForm) {
     loginForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevent form submission
+        event.preventDefault();
+
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();
 
-        if (username && password) {
-            // Fetch the user from Flask API
-            fetch("/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: new URLSearchParams({ 
-                    username: document.getElementById("username").value, 
-                    password: document.getElementById("password").value, 
-                }),
-            })
-                .then((response) => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                    } else if (!response.ok) {
-                        throw new Error("Invalid username or password")
-                    }
-                })
-                .catch((error) => {
-                    console.error("Login failed:", error);
-                    alert("Invalid username or password. Try again."); 
-                });
-        } else {
+        if (!username || !password) {
             alert("Please enter both username and password.");
+            return;
         }
+
+        console.log("Logging in with:", { username, password });
+
+        fetch("http://127.0.0.1:5000/login", {  // ✅ Explicit full URL
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+        })        
+        .then((response) => response.json())  // ✅ Ensure JSON response
+        .then((data) => {
+            if (data.token) {
+                localStorage.setItem("token", data.token);
+                alert("Login successful!");
+                window.location.href = "/register";  // ✅ Change this to your dashboard route
+            } else {
+                throw new Error(data.error || "Invalid login");
+            }
+        })
+        .catch((error) => {
+            console.error("Login failed:", error);
+            alert(error.message || "Invalid username or password. Try again.");
+        });
     });
-}
+};
+
 
 
 // Handle sign-up functionality
@@ -74,30 +76,22 @@ const signUpUser = () => {
         return;
     }
 
-    // Send the form data using the fetch API
-    fetch("/api/register", {
+    console.log("Registering user:", { username, password });
+
+    fetch("http://127.0.0.1:5000/register", {  // ✅ Explicit full URL
         method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-            username: username,
-            password: password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+    })    
+    .then((response) => response.json())
+    .then((data) => {
+        alert(data.message || "User registered successfully!");
+        container.classList.remove("active"); // ✅ Switch to login form
     })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.text(); // Flask renders HTML response
-        })
-        .then((html) => {
-            document.body.innerHTML = html; // Render the returned HTML
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-            alert("An error occurred while creating the user.");
-        });
+    .catch((error) => {
+        console.error("Registration failed:", error);
+        alert(error.message || "An error occurred while creating the user.");
+    });
 };
 
 
@@ -114,3 +108,8 @@ setTimeout(() => {
         setTimeout(() => flashMessages.remove(), 500); // Remove after fade-out
     }
 }, 5000); // 5 seconds timer for the flash messages to fade out
+
+
+// Debugging 
+console.log("Sending login data:", { username, password });
+console.log("API URL:", apiUrl);

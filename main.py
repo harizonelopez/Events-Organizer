@@ -6,11 +6,11 @@ import os
 from flask_wtf.csrf import CSRFProtect
 import jwt
 import datetime
-# from flask_cors import CORS
+from flask_cors import CORS
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Secret key (Use environment variable for security)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'aladinh00-010montext')
@@ -37,8 +37,12 @@ class Task(db.Model):
 with app.app_context():
     db.create_all()
 
+@app.route("/")
+def home():
+    return "Flask API is running perfect!"
+
 # API endpoint for user registration
-@app.route("/api/register", methods=['POST'])
+@app.route("/register", methods=['POST'])
 def register():
     data = request.get_json()
     username = data.get("username")
@@ -58,7 +62,7 @@ def register():
     return jsonify({"message": "User registered successfully"}), 201
 
 # API endpoint for user login
-@app.route("/api/login", methods=['POST'])
+@app.route("/login", methods=['POST'])
 def login():
     data = request.get_json()
     username = data.get("username")
@@ -73,13 +77,13 @@ def login():
     return jsonify({"token": token}), 200
 
 # Fetch all tasks
-@app.route("/api/tasks", methods=['GET'])
+@app.route("/tasks", methods=['GET'])
 def get_tasks():
     tasks = Task.query.all()
     return jsonify([{ "id": task.id, "name": task.name, "status": task.status } for task in tasks])
 
 # Add a new task
-@app.route("/api/tasks", methods=['POST'])
+@app.route("/tasks", methods=['POST'])
 def add_task():
     data = request.get_json()
     task_name = data.get("task_name")
@@ -92,7 +96,7 @@ def add_task():
     return jsonify({"message": "Task added successfully"}), 201
 
 # Update a task status
-@app.route("/api/tasks/<int:task_id>", methods=['PUT'])
+@app.route("/tasks/<int:task_id>", methods=['PUT'])
 def update_task(task_id):
     data = request.get_json()
     task = Task.query.get(task_id)
@@ -104,7 +108,7 @@ def update_task(task_id):
     return jsonify({"message": "Task updated successfully"})
 
 # Delete a task
-@app.route("/api/tasks/<int:task_id>", methods=['DELETE'])
+@app.route("/tasks/<int:task_id>", methods=['DELETE'])
 def delete_task(task_id):
     task = Task.query.get(task_id)
     if not task:
@@ -113,6 +117,10 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return jsonify({"message": "Task deleted successfully"})
+
+@app.before_request
+def log_request_info():
+    print(f"Received {request.method} request at {request.path}")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
