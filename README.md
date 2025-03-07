@@ -22,13 +22,13 @@ This is an Events Organizer application built with Flask-web framework. It allow
 2. Create a virtual environment and activate it:
     ```sh
     python -m venv venv
-    source venv/Scripts/activate  # On Mac use `venv\bin\activate`
+    source venv/Scripts/activate  # On Mac use `source venv\bin\activate`
     ```
 
 3. Initialize the database:
     ```sh
     flask db init
-    flask db migrate -m "Initial migration."
+    flask db migrate -m "Initial migration"
     flask db upgrade
     ```
 
