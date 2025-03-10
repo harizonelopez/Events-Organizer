@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 import os
@@ -31,17 +31,14 @@ with app.app_context():
     db.create_all()
 
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
-"""
-@app.route("/dashboard")
-def dashboard():
-    if "user_id" not in session:
-        flash("Please log in first!", "error")
-        return redirect(url_for("home"))
-
-    return render_template("dashboard.html")  # ✅ Create a simple dashboard page """
+# Homepage route
+@app.route("/homepage")
+def homepage():
+    tasks = Task.query.all()
+    return render_template("home_page.html", tasks=tasks)  # the page that will be displayed after login
 
 # User registration route
 @app.route("/register", methods=["POST"])
@@ -52,15 +49,15 @@ def register():
 
     if not username or not password or not confirm_password:
         flash("All fields are required!", "error")
-        return redirect(url_for("home"))
+        return redirect(url_for("index"))
 
     if password != confirm_password:
         flash("Passwords do not match!", "error")
-        return redirect(url_for("home"))
+        return redirect(url_for("index"))
 
     if User.query.filter_by(username=username).first():
         flash("Username already exists!", "error")
-        return redirect(url_for("home"))  
+        return redirect(url_for("index"))  
                 
     hashed_password = generate_password_hash(password)
     new_user = User(username=username, password=hashed_password)
@@ -86,34 +83,49 @@ def login():
 
         session['user_id'] = user.id
         flash("Login successful!", "success")
-        return redirect(url_for('tasks')) # redirects to dashboard route page
+        return redirect(url_for('homepage')) # redirects to dashboard route page
 
     return render_template("index.html")
 
-# Tasks route
-@app.route("/tasks", methods=['GET', 'POST'])
-def tasks():
-    if request.method == 'POST':
-        task_name = request.form.get("task_name")
-        if task_name:
-            new_task = Task(name=task_name)
-            db.session.add(new_task)
-            db.session.commit()
-            flash("Task added successfully!", "success")
-            return redirect(url_for('tasks'))
+# Add new task route
+@app.route('/add_task', methods=['POST'])
+def add_task():
+    task_name = request.form.get('task_name')
 
-    tasks = Task.query.all()
-    return render_template("home_page.html", tasks=tasks)
+    if task_name:
+        new_task = Task(name=task_name)
+        db.session.add(new_task)
+        db.session.commit()
+
+    return redirect(url_for('homepage'))
+
+# Task status update route
+@app.route('/api/tasks/<int:task_id>', methods=['PUT'])
+def update_task(task_id):
+    task = Task.query.get(task_id)
+    if not task:
+        flash("Task not found!", "error")
+        # return jsonify({"error": "Task not found"}), 404
+
+    task.status = request.json.get('status', task.status)
+    db.session.commit()
+    
+    flash("Task updated successfully!", "success")
+    # return jsonify({"message": "Task updated successfully"}), 200
 
 # Task deletion route
-@app.route("/delete_task/<int:task_id>")
+@app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     task = Task.query.get(task_id)
-    if task:
-        db.session.delete(task)
-        db.session.commit()
-        flash("Task deleted!", "success")
-    return redirect(url_for('tasks'))
+    if not task:
+        flash("Task not found!", "error")
+        # return jsonify({"error": "Task not found"}), 404
+
+    db.session.delete(task)
+    db.session.commit()
+    
+    flash("Task deleted successfully!", "success")
+    # return jsonify({"message": "Task deleted successfully"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

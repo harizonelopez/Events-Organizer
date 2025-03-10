@@ -23,7 +23,18 @@ if (signUpBtn) {
         const form = document.getElementById("sign-up-form");
         form.submit();  // Submit form normally
     });
-}i
+}
+/*
+function toggleEdit(taskId) {
+    document.getElementById(`task-name-${taskId}`).style.display = 'none';
+    document.getElementById(`edit-task-${taskId}`).style.display = 'inline-block';
+    document.querySelector(`#task-${taskId} .edit-btn`).style.display = 'none';
+    document.querySelector(`#task-${taskId} .save-btn`).style.display = 'inline-block';
+}
+
+function saveTask(taskId) {
+    let newName = document.getElementById(`edit-task-${taskId}`).value;
+*/
 
 // Auto-hide flash messages function script
 setTimeout(() => {
@@ -33,4 +44,4 @@ setTimeout(() => {
         flashMessages.style.opacity = 0; // Fade out
         setTimeout(() => flashMessages.remove(), 500); // Remove after fade-out
     }
-}, 4000); // 4 seconds timer for the flash messages to fade out
+}, 3000); // 3 seconds timer for the flash messages to fade out
