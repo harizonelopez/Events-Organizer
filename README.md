@@ -36,7 +36,7 @@ This is an Events Organizer application built with Flask-web framework. It allow
 
 1. Run the Flask application:
     ```sh
-    flask run
+    flask run or python main.py # terminal commands
     ```
 
 2. Open your web browser and go to `http://127.0.0.1:5000`.
