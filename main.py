@@ -118,9 +118,5 @@ def delete_task(task_id):
     db.session.commit()
     return jsonify({"message": "Task deleted successfully"})
 
-@app.before_request
-def log_request_info():
-    print(f"Received {request.method} request at {request.path}")
-
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
