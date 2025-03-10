@@ -1,23 +1,17 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 import os
 from flask_wtf.csrf import CSRFProtect
-import jwt
-import datetime
-from flask_cors import CORS
 
-# Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# Secret key (Use environment variable for security)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'aladinh00-010montext')
 
-# Configure SQLite database
+# SQLite database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 
@@ -39,84 +33,74 @@ with app.app_context():
 
 @app.route("/")
 def home():
-   return "Flask API is running perfect!"
+    return render_template("index.html")
 
-# API endpoint for user registration
-@app.route("/register", methods=['POST'])
+# User registration route
+@app.route("/register", methods=['GET', 'POST'])
 def register():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
+    if request.method == 'POST':
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-    if not username or not password:
-        return jsonify({"error": "Username and password are required"}), 400
+        if not username or not password:
+            flash("Username and password are required!", "error")
+            return redirect(url_for('register'))
 
-    if User.query.filter_by(username=username).first():
-        return jsonify({"error": "Username already exists"}), 409
+        if User.query.filter_by(username=username).first():
+            flash("Username already exists!", "error")
+            return redirect(url_for('register'))
 
-    hashed_password = generate_password_hash(password)
-    new_user = User(username=username, password=hashed_password)
-    db.session.add(new_user)
-    db.session.commit()
+        hashed_password = generate_password_hash(password)
+        new_user = User(username=username, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+        flash("User registered successfully!", "success")
+        return redirect(url_for('login'))
 
-# API endpoint for user login
-@app.route("/login", methods=['POST'])
+    return render_template("index.html")
+
+# User login route
+@app.route("/login", methods=['GET', 'POST'])
 def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
+    if request.method == 'POST':
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-    user = User.query.filter_by(username=username).first()
-    if not user or not check_password_hash(user.password, password):
-        return jsonify({"error": "Invalid username or password"}), 401
+        user = User.query.filter_by(username=username).first()
+        if not user or not check_password_hash(user.password, password):
+            flash("Invalid username or password!", "error")
+            return redirect(url_for('login'))
 
-    token = jwt.encode({'user_id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, 
-                       app.config['SECRET_KEY'], algorithm='HS256')
-    return jsonify({"token": token}), 200
+        flash("Login successful!", "success")
+        return redirect(url_for('tasks'))
 
-# Fetch all tasks
-@app.route("/tasks", methods=['GET'])
-def get_tasks():
+    return render_template("index.html")
+
+# Tasks route
+@app.route("/tasks", methods=['GET', 'POST'])
+def tasks():
+    if request.method == 'POST':
+        task_name = request.form.get("task_name")
+        if task_name:
+            new_task = Task(name=task_name)
+            db.session.add(new_task)
+            db.session.commit()
+            flash("Task added successfully!", "success")
+            return redirect(url_for('tasks'))
+
     tasks = Task.query.all()
-    return jsonify([{ "id": task.id, "name": task.name, "status": task.status } for task in tasks])
+    return render_template("home_page.html", tasks=tasks)
 
-# Add a new task
-@app.route("/tasks", methods=['POST'])
-def add_task():
-    data = request.get_json()
-    task_name = data.get("task_name")
-    if not task_name:
-        return jsonify({"error": "Task name is required"}), 400
-
-    new_task = Task(name=task_name)
-    db.session.add(new_task)
-    db.session.commit()
-    return jsonify({"message": "Task added successfully"}), 201
-
-# Update a task status
-@app.route("/tasks/<int:task_id>", methods=['PUT'])
-def update_task(task_id):
-    data = request.get_json()
-    task = Task.query.get(task_id)
-    if not task:
-        return jsonify({"error": "Task not found"}), 404
-
-    task.status = data.get('status', task.status)
-    db.session.commit()
-    return jsonify({"message": "Task updated successfully"})
-
-# Delete a task
-@app.route("/tasks/<int:task_id>", methods=['DELETE'])
+# Task deletion route
+@app.route("/delete_task/<int:task_id>")
 def delete_task(task_id):
     task = Task.query.get(task_id)
-    if not task:
-        return jsonify({"error": "Task not found"}), 404
-
-    db.session.delete(task)
-    db.session.commit()
-    return jsonify({"message": "Task deleted successfully"})
+    if task:
+        db.session.delete(task)
+        db.session.commit()
+        flash("Task deleted!", "success")
+    return redirect(url_for('tasks'))
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
