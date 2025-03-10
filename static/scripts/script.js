@@ -23,7 +23,7 @@ if (signUpBtn) {
         const form = document.getElementById("sign-up-form");
         form.submit();  // Submit form normally
     });
-}
+}i
 
 // Auto-hide flash messages function script
 setTimeout(() => {
@@ -33,4 +33,4 @@ setTimeout(() => {
         flashMessages.style.opacity = 0; // Fade out
         setTimeout(() => flashMessages.remove(), 500); // Remove after fade-out
     }
-}, 5000); // 5 seconds timer for the flash messages to fade out
+}, 4000); // 4 seconds timer for the flash messages to fade out

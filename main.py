@@ -1,18 +1,17 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 import os
 from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
-
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'aladinh00-010montext')
+csrf = CSRFProtect(app)  
 
 # SQLite database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 
 # User model
@@ -35,30 +34,43 @@ with app.app_context():
 def home():
     return render_template("index.html")
 
+"""
+@app.route("/dashboard")
+def dashboard():
+    if "user_id" not in session:
+        flash("Please log in first!", "error")
+        return redirect(url_for("home"))
+
+    return render_template("dashboard.html")  # ✅ Create a simple dashboard page """
+
 # User registration route
-@app.route("/register", methods=['GET', 'POST'])
+@app.route("/register", methods=["POST"])
 def register():
-    if request.method == 'POST':
-        username = request.form.get("username")
-        password = request.form.get("password")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    confirm_password = request.form.get("confirm_password")
 
-        if not username or not password:
-            flash("Username and password are required!", "error")
-            return redirect(url_for('register'))
+    if not username or not password or not confirm_password:
+        flash("All fields are required!", "error")
+        return redirect(url_for("home"))
 
-        if User.query.filter_by(username=username).first():
-            flash("Username already exists!", "error")
-            return redirect(url_for('register'))
+    if password != confirm_password:
+        flash("Passwords do not match!", "error")
+        return redirect(url_for("home"))
 
-        hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
+    if User.query.filter_by(username=username).first():
+        flash("Username already exists!", "error")
+        return redirect(url_for("home"))  
+                
+    hashed_password = generate_password_hash(password)
+    new_user = User(username=username, password=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
 
-        flash("User registered successfully!", "success")
-        return redirect(url_for('login'))
+    flash("User registered successfully!", "success")
+    return redirect(url_for('login'))           
 
-    return render_template("index.html")
+    # return render_template("index.html")
 
 # User login route
 @app.route("/login", methods=['GET', 'POST'])
@@ -72,8 +84,9 @@ def login():
             flash("Invalid username or password!", "error")
             return redirect(url_for('login'))
 
+        session['user_id'] = user.id
         flash("Login successful!", "success")
-        return redirect(url_for('tasks'))
+        return redirect(url_for('tasks')) # redirects to dashboard route page
 
     return render_template("index.html")
 
