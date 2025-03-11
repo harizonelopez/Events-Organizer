@@ -38,7 +38,7 @@ def index():
 @app.route("/homepage")
 def homepage():
     tasks = Task.query.all()
-    return render_template("home_page.html", tasks=tasks)  # the page that will be displayed after login
+    return render_template("home_page.html", tasks=tasks)  
 
 # User registration route
 @app.route("/register", methods=["POST"])
@@ -83,7 +83,7 @@ def login():
 
         session['user_id'] = user.id
         flash("Login successful!", "success")
-        return redirect(url_for('homepage')) # redirects to dashboard route page
+        return redirect(url_for('homepage'))
 
     return render_template("index.html")
 
