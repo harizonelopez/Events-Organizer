@@ -67,8 +67,6 @@ def register():
     flash("User registered successfully!", "success")
     return redirect(url_for('login'))           
 
-    # return render_template("index.html")
-
 # User login route
 @app.route("/login", methods=['GET', 'POST'])
 def login():
