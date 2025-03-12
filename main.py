@@ -98,18 +98,34 @@ def add_task():
     return redirect(url_for('homepage'))
 
 # Task status update route
-@app.route('/api/tasks/<int:task_id>', methods=['PUT'])
-def update_task(task_id):
+@app.route('/update_status/<int:task_id>', methods=['POST'])
+def update_task_status(task_id):
     task = Task.query.get(task_id)
-    if not task:
-        flash("Task not found!", "error")
-        # return jsonify({"error": "Task not found"}), 404
+    if task:
+        task.status = request.form['status']
 
-    task.status = request.json.get('status', task.status)
-    db.session.commit()
-    
-    flash("Task updated successfully!", "success")
-    # return jsonify({"message": "Task updated successfully"}), 200
+        db.session.commit()
+        flash("Task status updated successfully!", "success")
+    else:
+        flash("Task not found!", "danger")
+    return redirect(url_for('homepage')) 
+
+# Task name update route
+@app.route('/update_task_name/<int:task_id>', methods=['POST'])
+def update_task_name(task_id):
+    task = Task.query.get(task_id)
+    if task:
+        new_name = request.form['new_name']
+        if new_name.strip():  # Prevent empty names
+            task.name = new_name
+            db.session.commit()
+            flash("Task name updated successfully!", "success")
+        else:
+            flash("Task name cannot be empty!", "danger")
+    else:
+        flash("Task not found!", "danger")
+
+    return redirect(url_for('homepage'))
 
 # Task deletion route
 @app.route('/delete_task/<int:task_id>', methods=['POST'])

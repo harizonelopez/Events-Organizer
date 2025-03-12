@@ -6,6 +6,29 @@
     <title>Events Organizer App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 
+    <!-- // Auto-hide flash messages function script -->
+    <script>
+        setTimeout(() => {
+            const flashMessages = document.getElementById("flash-messages");
+            if (flashMessages) {
+                flashMessages.style.transition = "opacity 0.5s ease-out";
+                flashMessages.style.opacity = 0; // Fade out
+                setTimeout(() => flashMessages.remove(), 500); // Remove after fade-out
+            }
+        }, 3000); //  3 seconds timer for the flash messages to fade out
+    </script>
+    <script>
+        function toggleEdit(taskId) {
+            document.getElementById(`task-name-${taskId}`).style.display = 'none';
+            document.getElementById(`edit-task-${taskId}`).style.display = 'inline-block';
+            
+            let form = document.querySelector(`#task-${taskId} .edit-form`);
+            form.querySelector('.edit-btn').style.display = 'none';
+            form.querySelector('.save-btn').style.display = 'inline-block';
+        }
+    </script>    
+</head>
+<body>
     <!--Flash Messages feature-->
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -20,20 +43,6 @@
             {% endif %}
         {% endwith %}
     </div>
-
-    <!-- // Auto-hide flash messages function script -->
-    <script>
-        setTimeout(() => {
-            const flashMessages = document.getElementById("flash-messages");
-            if (flashMessages) {
-                flashMessages.style.transition = "opacity 0.5s ease-out";
-                flashMessages.style.opacity = 0; // Fade out
-                setTimeout(() => flashMessages.remove(), 500); // Remove after fade-out
-            }
-        }, 3000); //  3 seconds timer for the flash messages to fade out
-    </script>
-</head>
-<body>
     <div class="container">
         <h1><i>My To-Do Task List</i></h1>
 
@@ -65,12 +74,22 @@
                 <tr id="task-{{ task.id }}">
                     <td>{{ task.name }}</td>
                     <td>
-                        <select onchange="updateTaskStatus({{ task.id }}, this.value)">
-                            <option value="pending" {% if task.status == 'pending' %} selected {% endif %}>Pending</option>
-                            <option value="completed" {% if task.status == 'completed' %} selected {% endif %}>Completed</option>
-                        </select>
+                        <form action="{{ url_for('update_task_status', task_id=task.id) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <select name="status" onchange="this.form.submit()">
+                                <option value="Pending" {% if task.status == 'Pending' %} selected {% endif %}>Pending</option>
+                                <option value="Completed" {% if task.status == 'Completed' %} selected {% endif %}>Completed</option>
+                            </select>
+                        </form>                        
                     </td>
-                    <td><button type="submit" class="btn btn-outline-success">Edit</button></td>
+                    <td><form action="{{ url_for('update_task_name', task_id=task.id) }}" method="POST" class="edit-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <span class="task-name" id="task-name-{{ task.id }}">{{ task.name }}</span>
+                            <input type="text" name="new_name" id="edit-task-{{ task.id }}" value="{{ task.name }}" class="edit-input" style="display: none;">
+                            <button type="button" class="edit-btn" onclick="toggleEdit({{ task.id }})">Edit</button>
+                            <button type="submit" class="save-btn" style="display: none;">Save</button>
+                        </form>
+                    </td>
                     <td>
                         <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
