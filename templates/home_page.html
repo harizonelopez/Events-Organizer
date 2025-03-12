@@ -22,11 +22,37 @@
             document.getElementById(`task-name-${taskId}`).style.display = 'none';
             document.getElementById(`edit-task-${taskId}`).style.display = 'inline-block';
             
-            let form = document.querySelector(`#task-${taskId} .edit-form`);
-            form.querySelector('.edit-btn').style.display = 'none';
-            form.querySelector('.save-btn').style.display = 'inline-block';
+            document.querySelector(`#task-${taskId} .edit-btn`).style.display = 'none';
+            document.querySelector(`#task-${taskId} .save-btn`).style.display = 'inline-block';
         }
-    </script>    
+    
+        function saveTask(taskId) {
+            let newName = document.getElementById(`edit-task-${taskId}`).value;
+
+            fetch(`/update_task_name/${taskId}`, {
+                method: 'PUT',  
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}' // CSRF protection enabled
+                },
+                body: JSON.stringify({ name: newName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Task updated successfully") {
+                    document.getElementById(`task-name-${taskId}`).innerText = newName;
+                    document.getElementById(`task-name-${taskId}`).style.display = 'inline-block';
+                    document.getElementById(`edit-task-${taskId}`).style.display = 'none';
+                    
+                    document.querySelector(`#task-${taskId} .edit-btn`).style.display = 'inline-block';
+                    document.querySelector(`#task-${taskId} .save-btn`).style.display = 'none';
+                } else {
+                    alert('Failed to update task: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
 </head>
 <body>
     <!--Flash Messages feature-->
@@ -72,7 +98,14 @@
                 <!-- Tasks will be inserted here dynamically -->
                 {% for task in tasks %}
                 <tr id="task-{{ task.id }}">
-                    <td>{{ task.name }}</td>
+                   <td>
+                        <form action="{{ url_for('update_task_name', task_id=task.id) }}" method="POST" class="edit-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <span class="task-name" id="task-name-{{ task.id }}">{{ task.name }}</span>
+                            <input type="text" name="new_name" id="edit-task-{{ task.id }}" value="{{ task.name }}" class="edit-input" style="display: none;">
+                        </form>
+                   </td> 
+                    </td>
                     <td>
                         <form action="{{ url_for('update_task_status', task_id=task.id) }}" method="POST">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -82,13 +115,9 @@
                             </select>
                         </form>                        
                     </td>
-                    <td><form action="{{ url_for('update_task_name', task_id=task.id) }}" method="POST" class="edit-form">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <span class="task-name" id="task-name-{{ task.id }}">{{ task.name }}</span>
-                            <input type="text" name="new_name" id="edit-task-{{ task.id }}" value="{{ task.name }}" class="edit-input" style="display: none;">
-                            <button type="button" class="edit-btn" onclick="toggleEdit({{ task.id }})">Edit</button>
-                            <button type="submit" class="save-btn" style="display: none;">Save</button>
-                        </form>
+                    <td>
+                        <button class="edit-btn" onclick="toggleEdit({{ task.id }})">Edit</button>
+                        <button class="save-btn" onclick="saveTask({{ task.id }})" style="display: none;">Save</button>
                     </td>
                     <td>
                         <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST">

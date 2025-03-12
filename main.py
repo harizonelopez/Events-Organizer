@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 import os
@@ -111,19 +111,21 @@ def update_task_status(task_id):
     return redirect(url_for('homepage')) 
 
 # Task name update route
-@app.route('/update_task_name/<int:task_id>', methods=['POST'])
+@app.route('/update_task_name/<int:task_id>', methods=['PUT'])
 def update_task_name(task_id):
     task = Task.query.get(task_id)
-    if task:
-        new_name = request.form['new_name']
-        if new_name.strip():  # Prevent empty names
-            task.name = new_name
-            db.session.commit()
-            flash("Task name updated successfully!", "success")
-        else:
-            flash("Task name cannot be empty!", "danger")
-    else:
-        flash("Task not found!", "danger")
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+
+    data = request.get_json()
+    new_name = data.get('name', '').strip()
+
+    if not new_name:
+        return jsonify({"error": "Task name cannot be empty"}), 400
+
+    task.name = new_name
+    db.session.commit()
+    flash("Task updated successfully!", "success")
 
     return redirect(url_for('homepage'))
 
