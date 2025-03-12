@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Events Organizer App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+
+    <!--Flash Messages feature-->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- // Auto-hide flash messages function script -->
+    <script>
+        setTimeout(() => {
+            const flashMessages = document.getElementById("flash-messages");
+            if (flashMessages) {
+                flashMessages.style.transition = "opacity 0.5s ease-out";
+                flashMessages.style.opacity = 0; // Fade out
+                setTimeout(() => flashMessages.remove(), 500); // Remove after fade-out
+            }
+        }, 3000); //  3 seconds timer for the flash messages to fade out
+    </script>
 </head>
 <body>
     <div class="container">
@@ -43,48 +70,18 @@
                             <option value="completed" {% if task.status == 'completed' %} selected {% endif %}>Completed</option>
                         </select>
                     </td>
-                    <td><button type="submit" class="btn btn btn-outline-success">Edit</button></td>
+                    <td><button type="submit" class="btn btn-outline-success">Edit</button></td>
                     <td>
-                        <form onsubmit="deleteTask(event, {{ task.id }})">
-                            <button type="submit">Delete</button>
-                        </form>
+                        <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="_method" value="DELETE"> 
+                            <button class="btn btn-outline-primary">Delete</button>
+                        </form>  
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
-    
-    <script> 
-        function updateTaskStatus(taskId, status) {
-            fetch(`/api/tasks/${taskId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: status }),
-            }).then(response => {
-                if (response.ok) {
-                    alert('Task updated successfully');
-                } else {
-                    alert('Failed to update task');
-                }
-            });
-        }
-        
-        function deleteTask(event, taskId) {
-            event.preventDefault();
-            fetch(`/api/tasks/${taskId}`, {
-                method: 'DELETE',
-            }).then(response => {
-                if (response.ok) {
-                    document.getElementById(`task-${taskId}`).remove();
-                } else {
-                    alert('Failed to delete task');
-                }
-            });
-        }
-    </script>
 </body>
 </html>

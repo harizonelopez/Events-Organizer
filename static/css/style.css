@@ -113,6 +113,24 @@ button.deleteBtn:hover {
     background-color: #c0392b;
 }
 
+flash-messages {
+    margin: 20px;
+    padding: 10px;
+}
+
+.flash-message {
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+}
+
+.flash-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
 /* To be used later in the program */
 /*
 nav ul {

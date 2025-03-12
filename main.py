@@ -112,18 +112,16 @@ def update_task(task_id):
     # return jsonify({"message": "Task updated successfully"}), 200
 
 # Task deletion route
-@app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
+@app.route('/delete_task/<int:task_id>', methods=['POST'])
 def delete_task(task_id):
-    task = Task.query.get(task_id)
-    if not task:
-        flash("Task not found!", "error")
-        # return jsonify({"error": "Task not found"}), 404
+    if request.form.get('_method') == 'DELETE':
+        task = Task.query.get_or_404(task_id)
 
-    db.session.delete(task)
-    db.session.commit()
+        db.session.delete(task)
+        db.session.commit()
+        flash("Task deleted successfully!", "success")
     
-    flash("Task deleted successfully!", "success")
-    # return jsonify({"message": "Task deleted successfully"}), 200
+    return redirect(url_for('homepage'))
 
 if __name__ == "__main__":
     app.run(debug=True)
