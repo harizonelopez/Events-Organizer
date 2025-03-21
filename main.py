@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'aladinh00-010montext')
 csrf = CSRFProtect(app)  
 
-# SQLite database configuration and integration
+# SQLite Database configuration and integration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
