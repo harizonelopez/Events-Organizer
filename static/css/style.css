@@ -1,0 +1,228 @@
+/* Home-page tab styles */
+*   {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Body styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #3716a2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px; /* Increased padding for better spacing */
+    }
+
+    /* Container styles */
+    .container {
+        background-color: white;
+        border-radius: 12px;  /* Slightly more rounded corners */
+        padding: 30px;  
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 650px; /* Slightly increased max width */
+    }
+
+    /* Heading styles */
+    h1 {
+        text-align: center;
+        margin-bottom: 40px; /* Increased space between heading and form */
+        color: #3212d2;
+        font-size: 24px; 
+    }
+
+    /* Input and Button styles */
+    input[type="text"] {
+        width: 100%;  /* Full width for better alignment */
+        padding: 10px;
+        font-size: 18px;  
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 15px; /* Space between input and button */
+        box-sizing: border-box;
+    }
+
+    button {
+        padding: 12px;
+        font-size: 18px;
+        border: none;
+        background-color: #4CAF50; 
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    button:hover {
+        background-color: #245b27;
+        transition: background-color 0.3s ease; /* Smooth hover transition */
+    }
+
+    /* Table styles */
+    table {
+        width: 100%;
+        margin-top: 30px;
+        border-collapse: collapse;
+        border-radius: 8px;
+        overflow: hidden;  /* Rounded corners for table */
+    }
+
+    th, td {
+        padding: 15px; /* More padding for a cleaner look */
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        color: #333;
+        font-size: 18px; /* Larger text for headers */
+    }
+
+    td {
+        background-color: #fafafa;
+        color: #333;
+        font-size: 16px;
+    }
+
+    button.deleteBtn {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease; /* Smooth hover transition */
+    }
+
+    button.doneBtn {
+        background-color: #45a049;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease; /* Smooth hover transition */
+    }
+
+    button.deleteBtn:hover {
+        background-color: #c0392b;
+    }
+
+    .flash-messages {
+        position: fixed; 
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20%;
+        padding: 10px;
+        z-index: 1000; 
+        text-align: center;
+    }
+
+    .flash-message {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid transparent;
+        border-radius: 5px;
+    }
+
+    .flash-message.success {
+        background-color: #d4edda;
+        color: #155724;
+        border-color: #c3e6cb;
+    }
+
+    .flash-message.danger {
+        background-color: #d4edda;
+        color: red;
+        border-color: #c3e6cb;
+    }
+
+    /* To be used later in the program */
+    /*
+    nav ul {
+        height: 100%; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    nav ul li {
+        list-style: none;
+        width: var(--icon-size);
+        height: var(--icon-size);
+    }
+    */
+
+    /* Media Queries for Responsiveness */
+
+    /* Small screens (mobile) */
+    @media (max-width: 600px) {
+        body {
+            padding: 15px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 22px; /* Adjusted font size for better mobile view */
+            color: violet;
+        }
+
+        input[type="text"], button {
+            font-size: 16px;
+            padding: 12px;
+        }
+
+        button {
+            width: 100%;  /* Full width buttons for mobile devices */
+            margin-bottom: 15px;  /* Space between buttons */
+        }
+
+        table {
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px;
+        }
+
+        button.deleteBtn {
+            width: 100%;  /* Delete button full width */
+        }
+    }
+
+    /* Medium screens (tablet) */
+    @media (min-width: 601px) and (max-width: 1024px) {
+        .container {
+            padding: 25px;
+        }
+
+        input[type="text"], button {
+            font-size: 18px;
+            padding: 14px;
+        }
+
+        button {
+            width: 100%;  /* Full-width on tablet */
+        }
+
+        table {
+            font-size: 16px;
+        }
+
+        th, td {
+            padding: 14px;
+        }
+
+        button.deleteBtn {
+            width: auto;  /* Button adjusts back to fit content */
+        }
+    }
