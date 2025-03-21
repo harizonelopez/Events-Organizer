@@ -58,15 +58,15 @@
 
 ### User  Authentication
 
-- `POST /register`: Register a new user
-- `POST /login`: Log in a user
+- `POST/register`: Register a new user
+- `POST/login`: Log in a user
 
 ### Task Management
 
-- `POST /add_task`: Add a new task
-- `PUT /update_task_name/<int:task_id>`: Update a task name
-- `POST /update_status/<int:task_id>`: Update a task status
-- `DELETE /delete_task/<int:task_id>`: Delete a task
+- `POST/add_task`: Add a new task
+- `PUT/update_task_name/<int:task_id>`: Update a task name
+- `POST/update_status/<int:task_id>`: Update a task status
+- `DELETE/delete_task/<int:task_id>`: Delete a task
 
 ## License
 
