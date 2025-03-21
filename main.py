@@ -52,7 +52,7 @@ def index():
 @app.route("/homepage")
 @login_required
 def homepage():
-    tasks = Task.query.filter_by(user_id=current_user.id).all()  # Only tasks belonging to the current logged in user to be retrieved
+    tasks = Task.query.filter_by(user_id=current_user.id).all()  # Only tasks belonging to the current signed in user to be retrieved
     return render_template("home_page.html", tasks=tasks)  
 
 # User registration route
